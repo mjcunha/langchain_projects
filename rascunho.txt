@@ -1,0 +1,74 @@
+    try:
+        db_conn = psycopg2.connect(SERVICE_URL)
+        c = db_conn.cursor(cursor_factory=RealDictCursor)
+        c.execute("SELECT 1 = 1")
+        result = c.fetchone()
+        print(result)
+        loader = db_conn.
+
+        llm = ChatOpenAI(
+            model="gpt-3.5-turbo-16k",
+            temperature=0.0,
+            openai_api_key=OPENAI_API_KEY,
+            openai_organization=OPENAI_ORGANIZATION,
+            verbose=True,
+        )
+        pergunta = "Quantos atendimentos foram feitos no dia 15 de Março?"
+        
+        chat_template = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "user",
+                    """Você é um assistente que responde perguntas sobre registros armazenados no timescaledb baseado
+            em registros do banco.
+
+            Responda a seguinte pergunta: {pergunta}
+            Procurando nas seguintes transcrições: {docs}
+
+            Use somente informação do registro para responder a pergunta. Se você não sabe, responda
+            com "Eu não sei".
+
+            Suas respostas devem ser bem detalhadas e verbosas.
+            """,
+                )
+            ]
+        )
+
+
+
+
+    # Give LLM info about the metadata fields
+    metadata_field_info = [
+        AttributeInfo(
+            name="id",
+            description="A UUID v1 generated from the date of the commit",
+            type="uuid",
+        ),
+        AttributeInfo(
+            name="contents",
+            description="Descrição da atividade no dia",
+            type="string",
+        ),
+        AttributeInfo(
+            name="metadata_",
+            description="Dado em JSON ",
+            type="jsonb",
+        ),
+        AttributeInfo(
+            name="embedding",
+            description="Public.vector",
+            type="public.vector",
+        ),
+    ]
+    document_content_description = "O documento contém sumario contendo um id, descrição da atividade no dia, dado em json e embedding"
+
+    llm = OpenAI(temperature=0)
+    retriever = SelfQueryRetriever.from_llm(
+        llm,
+        vectorstore,
+        document_content_description,
+        metadata_field_info,
+        enable_limit=True,
+        verbose=True,
+    )  
+    retriever.get_relevant_documents("Quais foram os atendimentos?")  
